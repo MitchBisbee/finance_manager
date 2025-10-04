@@ -1,0 +1,41 @@
+[project]
+name = "finance-manager"
+version = "0.1.0"
+description = "Finance manager environment"
+readme = "README.md"
+requires-python = ">=3.11"
+
+# Core runtime deps
+dependencies = [
+    "pandas",
+    "plotly",
+    "requests",
+    "PySide6",
+    "PySide6-Addons",
+    "typing", 
+]
+
+[project.optional-dependencies]
+dev = [
+    "black",       
+    "ruff",        
+    "pytest",     
+    "pytest-cov", 
+]
+
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+include-package-data = true
+
+# Using src/ layout
+[tool.setuptools.packages.find]
+where = ["src"]
+# Adjust include list to match your actual package dirs under src/
+include = ["app*", "bank*", "managers*", "plotting*","processing*","config*"]
+exclude = ["tests*", "docs*", "examples*"]
+
+[project.scripts]
+app = "app.__main__:main"
