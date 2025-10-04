@@ -1,0 +1,26 @@
+{
+  "columns_map": {
+    "Transaction Date": "date",
+    "Date": "date",
+    "Description": "description",
+    "Category": "category",
+    "Amount": "amount"
+
+  },
+  "defaults": {
+    "Amount": 0,
+    "Category": [
+        "Bills & utilities",
+        "Food & drink",
+        "Groceries",
+        "Shopping",
+        "Entertainment",
+        "Travel",
+        "Health & wellness",
+        "Personal",
+        "Fees & adjustments",
+        "Subscriptions"
+        ]
+  },
+  "drop_list": ["Post Date", "Memo","Original Description", "Type","Status"]
+}
