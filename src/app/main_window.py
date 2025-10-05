@@ -14,6 +14,15 @@ from PySide6.QtWidgets import (
 )
 
 from managers.finances import FinanceManager
+# TODO: there is too much space between th pi chart and the legend.
+# TODO: The UI needs a redesign, there should be three main plots, expensis,
+# spending vs income and budget, that's it
+# then we will have the subscriptions underneath the three plots in card format
+# one card = one subscription with subscription name and cost
+# use a parent container as a Vbox and the plot area will be an HBox with
+# a normal styled empty widget per plot
+# second layer will be and Hbox with the a card for each subscription
+# then at on the third layer will be buttons, styled and evenly spaced
 
 
 class MainWindow(QMainWindow):
@@ -73,8 +82,7 @@ class MainWindow(QMainWindow):
 
         # Example plot widgets from Manager API
         # budget_plot = self.plot_budget(month="test")
-        expense_cat_plot = self._finance_manager.plot_expense_categories(
-            month="test")
+        expense_cat_plot = self._finance_manager.plot_expense_categories()
         # top_layout.addWidget(budget_plot)
         if expense_cat_plot is not None:
             top_layout.addWidget(expense_cat_plot)

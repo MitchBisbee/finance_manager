@@ -3,7 +3,7 @@
 from processing.cleaners import CSVDataCleaner
 
 
-def test_load_and_clean_directory(csv_dir, norm_config):
+def test_load_and_clean_directory(messy_csv_dir, norm_config):
     """Tests load_and_clean_directory by checking for correct headers and 
        data types. 
     Asserts:
@@ -14,7 +14,7 @@ def test_load_and_clean_directory(csv_dir, norm_config):
         - "category" in df.columns
         - "amount" in df.columns
     """
-    cleaner = CSVDataCleaner(path=csv_dir)
+    cleaner = CSVDataCleaner(path=messy_csv_dir)
     cleaner.config = norm_config
 
     cleaned_list = cleaner.load_and_clean()

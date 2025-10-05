@@ -1,114 +1,76 @@
-"""Module for analyzing finances and creating budgets.
-
-Functions:
-    fill_self._data_frames(path: str) -> dict:
-        Reads self._data_frames from the given path and returns a dictionary of data.
-
-    expense_categories(df: pd.DataFrame) -> pd.DataFrame:
-        Groups the given DataFrame into expense categories.
-    
-    create_df(file: Path | str) -> dict | pd.DataFrame
-        Creates a data frame or dictionary data from file input
-
-    credit_expenses(df: pd.DataFrame) -> pandas.core.groupby.DataFrameGroupBy:
-        Groups credit expenses from the DataFrame by categories.
-
-    total_monthly_pay() -> float:
-        Calculates the total monthly pay from the financial data.
-
-    amount_spent(df: pd.DataFrame) -> float:
-        Computes the total amount spent within a given period.
-
-    calculate_net_expenses(df: pd.DataFrame) -> float:
-        Calculates net expenses after income for a given period.
-
-    notify_budget_status(budget: float, df: pd.DataFrame) -> str:
-        Notifies if you are on, over, or under budget based on the given DataFrame.
-
-    set_budget(df: pd.DataFrame) -> pd.DataFrame:
-        Sets a budget based on the analysis of the given DataFrame.
-
-    show_subscriptions(df: pd.DataFrame) -> pd.DataFrame:
-        Identifies and displays subscription payments from the DataFrame.
-"""
+"""Module for analyzing finances and creating budgets."""
 # pylint: disable=no-name-in-module
 from typing import List
 import pandas as pd
 from plotly.io import to_html
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from plotting.plot_generator import PlotlyPlots
+from config import filters_config
+from utilities.dates import (current_month_range, previous_month_range,
+                             last_three_months_to_today)
+
+# TODO: might want to add a method that will write to a google sheet in our shared
+# email. I think Morgan would like that. Or maybe it could email her a report?
+# need to add a feature to plot expensis based on previous month, three month range
+# should be the max that plotting can do
 
 
 class FinanceManager:
-    """Class for interrogating financial data."""
+    """Class for interrogating financial data, and creating budgets."""
 
     def __init__(self, data_frame_list: List[dict]) -> None:
         self._data_frames = data_frame_list
-        self.months = list(self._data_frames.keys())
+        self._checking_df = self._set_checking_df()
+        self._credit_df = self._set_credit_df()
+        self._concat_df = self._set_concat_df()
 
-    @property
-    def data_frames(self):
-        """Getter
-
-        Returns:
-            List[dict]: dict of pd.DataFrame
+    def _set_checking_df(self):
+        """Setter
         """
-        return self._data_frames
+        return next(
+            (item.get("checking")
+             for item in self._data_frames if item.get("checking") is not None),
+            None
+        )
 
-    def expense_categories(self, month):
+    def _set_credit_df(self):
+        """Setter
+        """
+        return next(
+            (item.get("credit")
+             for item in self._data_frames if item.get("credit") is not None),
+            None
+        )
+
+    def _set_concat_df(self):
+        """Setter
+        """
+        return pd.concat([self._checking_df, self._credit_df], ignore_index=True)
+
+    def expense_categories(self) -> pd.DataFrame:
         """Groups a data frame into expense categories.
-
-        Args:
-            month(str): month of personal finances
 
         Returns:
             pandas.core.groupby.DataFrameGroupBy: GroupBy object with data grouped
             into expense categories.
         """
-        if month not in self.months:
-            print("Error: Month not found.")
-            return None
-        return self._data_frames[month][0].groupby("category")['amount'].sum()
+        return (abs(self._concat_df.groupby("category")["amount"].sum()))
 
-    def plot_budget(self, month):
-        """Generates a pie chart to show budget use.
-
-        Returns:
-            QWebEngineView | None: the web view widget containing the plot
+    def plot_expensis_versus_income(self):
+        """Plots a bar chart showing expensis versus income for a month.
         """
-        if month not in self.months:
-            print("Error: Month not found.")
-            return None
-        else:
-            df = self._data_frames[month][0]
-            values = df[df.columns[8]].fillna(0).clip(lower=0)
-            labels = df[df.columns[10]]
-            data = {'Labels': labels, 'Values': values}
-            plot = PlotlyPlots(data)
-            fig = plot.pie_chart()
+        pass
 
-            # Convert the Plotly figure to HTML
-            html_string = to_html(fig, full_html=False, include_plotlyjs='cdn')
+    def plot_expense_categories(self, month_interval=None):
+        """Plots the expense categories in a pie chart."""
 
-            # Create a QWebEngineView to display the HTML (PySide6)
-            webview = QWebEngineView()
-            webview.setHtml(html_string)
-            return webview
-
-    def plot_expense_categories(self, month):
-        """Plots the expense categories in a pie chart using Plotly."""
-        if month not in self.months:
-            print("Error: Month not found.")
-            return None
-
-        grouped_data = self.expense_categories(month)
+        grouped_data = self.expense_categories()
         if grouped_data is not None:
-            data = {'Labels': grouped_data.index,
-                    'Values': grouped_data.values}
-            plot = PlotlyPlots(data)
-            fig = plot.pie_chart()
+            data = {'labels': grouped_data.index,
+                    'values': grouped_data.values,
+                    'name': "Expenses"}
+            fig = PlotlyPlots.pie_chart(data)
 
-            # Convert the Plotly figure to HTML
             html_string = to_html(fig, full_html=False, include_plotlyjs='cdn')
 
             # Create a QWebEngineView to display the HTML (PySide6)
@@ -116,22 +78,33 @@ class FinanceManager:
             webview.setHtml(html_string)
             return webview
         else:
-            print("Data could not be grouped.")
+            print("Data could not be plotted.")
 
-    def credit_expensis(self, df):
-        """Groups the incoming data frame into credit expense categories.
-
-        Args:
-            df (pd.DataFrame): data frame of personal finances
+    def get_current_month_credit_usage(self):
+        """Gets the amount spent on the credit card for the month.
 
         Returns:
-            pandas.core.groupby.DataFrameGroupBy: GroupBy object with credit usage
-            grouped into expense categories.
+            float64: Amount spent in monthly period.
         """
-        if not isinstance(df, pd.DataFrame):
-            print("Error, only Dataframe objects are permitted.")
-            return None
-        return df.groupby(["Account Type", "Institution Name"])["Amount"].sum()
+        start, end = current_month_range()
+        copy_df = self._credit_df.copy()
+        copy_df["date"] = pd.to_datetime(copy_df["date"], errors="coerce")
+        mask = (copy_df["date"] >= start) & (copy_df["date"] <= end)
+        copy_df = copy_df.loc[mask]
+        return abs(copy_df.loc[copy_df["amount"] < 0, "amount"].sum())
+
+    def get_previous_month_credit_usage(self):
+        """Gets the amount spent on the credit card for the previous month.
+
+        Returns:
+            float64: Amount spent in monthly period.
+        """
+        start, end = previous_month_range()
+        copy_df = self._credit_df.copy()
+        copy_df["date"] = pd.to_datetime(copy_df["date"], errors="coerce")
+        mask = (copy_df["date"] >= start) & (copy_df["date"] <= end)
+        copy_df = copy_df.loc[mask]
+        return abs(copy_df.loc[copy_df["amount"] < 0, "amount"].sum())
 
     def total_income_last_month(self):
         """Calculates the total monthly income of the prevous month.
@@ -140,14 +113,11 @@ class FinanceManager:
 
             float: Sum of positive numbers in Amount for previous month.
         """
-        start, end = self._get_previous_month_range()
-        for d in self._data_frames:
-            df = d.get("checking", None)
-            if df is None:
-                continue
-        last_month = df.loc[(df["date"] >= start) & df["date"] <= end]
+        start, end = previous_month_range()
+        mask = (self._checking_df["date"] >= start) & (
+            self._checking_df["date"] <= end)
+        last_month = self._checking_df.loc[mask]
         income = last_month.loc[last_month["amount"] > 0, "amount"].sum()
-
         return income
 
     def total_expensis_last_month(self):
@@ -159,15 +129,11 @@ class FinanceManager:
         Returns:
             float: total amount spent in a period
         """
-        start, end = self._get_previous_month_range()
-        for d in self._data_frames:
-            df = d.get("checking", None)
-            if df is None:
-                continue
-        last_month = df.loc[(df["date"] >= start) & df["date"] <= end]
-        income = last_month.loc[last_month["amount"] < 0, "amount"].sum()
-
-        return abs(income)
+        start, end = previous_month_range()
+        df = self._checking_df
+        mask = (df["date"] >= start) & (df["date"] <= end)
+        last_month = df.loc[mask]
+        return abs(last_month.loc[last_month["amount"] < 0, "amount"].sum())
 
     def set_budget(self, df):
         """Creates a budget based on categories in a personal finance dataframe.
@@ -177,65 +143,29 @@ class FinanceManager:
         """
         return df
 
-    def _single_mode(self, series):
-        """Custom aggregation function for mode that ensures a single value
-
-        Args:
-            series (pd.Series): series to calculate the mode
-
-        Returns:
-            pd.Series | scalar: single mode value
-        """
-        modes = pd.Series.mode(series)
-        if len(modes) > 1:
-            return modes.iloc[0]
-        else:
-            return modes
-
-    def show_subscriptions(self, df):
-        """Identifies recurring payments classified under a specific category
-        in a personal finance DataFrame and returns a summary with the payment
-        name, amount, and typical day of the month for the payment.
-
-        Args:
-            df (pd.DataFrame): DataFrame of personal finances.
-
+    def get_subscriptions(self) -> pd.DataFrame:
+        """Identifies and returns a data frame of subscriptions.
         Returns:
             pd.DataFrame | None: Summary of recurring payments.
         """
-        if not isinstance(df, pd.DataFrame):
-            print("Error, only DataFrame objects are permitted.")
-            return None
-        df['date'] = pd.to_datetime(df.iloc[:, 0])
-        df['day_of_month'] = df['Date'].dt.day
-        category_filter = df.iloc[:, 10] == "Entertainment & Rec."
-        filtered_df = df[category_filter]
-
-        recurring = filtered_df.groupby([df.columns[6], df.columns[8]])['day_of_month'].agg(
-            [('Day of Month', self._single_mode), ('Count', 'count')]
+        start, end = last_three_months_to_today()
+        copy_df = self._concat_df.copy()
+        copy_df["date"] = pd.to_datetime(copy_df["date"], errors="coerce")
+        mask = (copy_df["date"] >= start) & (
+            copy_df["date"] <= end)
+        copy_df = copy_df.loc[mask]
+        filtered = copy_df[~copy_df["category"].isin(
+            filters_config["exclude_list"])]
+        subscription_names = (
+            filtered["description"]
+            .value_counts()
+            .loc[lambda x: x > 1]
+            .index
         )
-
-        recurring = recurring[recurring['Count'] > 1]
-        recurring.reset_index(inplace=True)
-        recurring.drop(columns=['Count'], inplace=True)
-        recurring.columns = ['Name', 'Amount', 'Day of Month']
-        return recurring
-
-    def _get_previous_month_range(self) -> tuple[pd.Timestamp, pd.Timestamp]:
-        """
-        Returns the start and end dates of the previous month as pandas Timestamps.
-
-        Example:
-            get_previous_month_range()
-            (Timestamp('2025-09-01 00:00:00'), Timestamp('2025-09-30 00:00:00'))
-        """
-        today = pd.Timestamp.today().normalize()
-
-        start_prev_month = today.replace(day=1) - pd.DateOffset(months=1)
-
-        end_prev_month = today.replace(day=1) - pd.DateOffset(days=1)
-
-        return start_prev_month, end_prev_month
+        duplicate_subscr_data = filtered[filtered["description"].isin(
+            subscription_names)]
+        return (duplicate_subscr_data.
+                drop_duplicates(subset=["description"], keep="first"))
 
     if __name__ == "__main__":
         pass

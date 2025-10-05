@@ -1,0 +1,14 @@
+{
+    "exclude_list":[
+        "Interest Income",
+        "Interest Payment",
+        "Bills & Utilities",
+        "Mobile Phone",
+        "Credit Card Payment",
+        "Financial",
+        "Income",
+        "Utilities",
+        "Transfer",
+        "Payroll"
+    ]
+}

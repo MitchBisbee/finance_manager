@@ -20,7 +20,8 @@ dev = [
     "black",       
     "ruff",        
     "pytest",     
-    "pytest-cov", 
+    "pytest-cov",
+    "uuid" 
 ]
 
 [build-system]
@@ -34,7 +35,7 @@ include-package-data = true
 [tool.setuptools.packages.find]
 where = ["src"]
 # Adjust include list to match your actual package dirs under src/
-include = ["app*", "bank*", "managers*", "plotting*","processing*","config*"]
+include = ["app*", "bank*", "managers*", "plotting*","processing*","config*","utilities*"]
 exclude = ["tests*", "docs*", "examples*"]
 
 [project.scripts]

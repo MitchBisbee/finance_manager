@@ -4,35 +4,81 @@ import plotly.graph_objects as go
 
 
 class PlotlyPlots:
-    """A class for generating plotly plots.
-    """
+    """Utility class for generating common Plotly chart types."""
+    @staticmethod
+    def pie_chart(data: dict):
+        """
+        Creates and returns a pie chart.
 
-    def __init__(self, data):
-        # Initialize with data
-        self.data = data
+        Expected keys in data:
+            - labels: list of category labels
+            - values: list of corresponding numeric values
+            - name (optional): trace name for the pie chart
+        """
+        labels = data.get("labels", [])
+        values = data.get("values", [])
+        name = data.get("name", "Pie Chart")
 
-    def pie_chart(self):
-        """Creates and returns a pie chart."""
         fig = go.Figure(
-            data=[go.Pie(labels=self.data["Labels"], values=self.data['Values'])])
+            data=[go.Pie(labels=labels, values=values, name=name)]
+        )
         return fig
 
-    def scatter_plot(self):
-        """Creates and returns a scatter plot."""
+    @staticmethod
+    def scatter_plot(data: dict):
+        """
+        Creates and returns a scatter plot.
+
+        Expected keys in data:
+            - x: list of x-values
+            - y: list of y-values
+            - name (optional): trace name
+        """
+        x = data.get("x", [])
+        y = data.get("y", [])
+        name = data.get("name", "Scatter Plot")
+
         fig = go.Figure(
-            data=[go.Scatter(x=self.data['Date'], y=self.data['Value'], mode='markers')])
+            data=[go.Scatter(x=x, y=y, mode="markers", name=name)]
+        )
         return fig
 
-    def bar_chart(self):
-        """Creates and returns a bar chart."""
+    @staticmethod
+    def bar_chart(data: dict):
+        """
+        Creates and returns a bar chart.
+
+        Expected keys in data:
+            - x: list of categories (x-axis)
+            - y: list of values (heights)
+            - name (optional): trace name
+        """
+        x = data.get("x", [])
+        y = data.get("y", [])
+        name = data.get("name", "Bar Chart")
+
         fig = go.Figure(
-            data=[go.Bar(x=self.data['Date'], y=self.data['Value'])])
+            data=[go.Bar(x=x, y=y, name=name)]
+        )
         return fig
 
-    def line_chart(self):
-        """Creates and returns a line chart."""
+    @staticmethod
+    def line_chart(data: dict):
+        """
+        Creates and returns a Plotly line chart.
+
+        Expected keys in data:
+            - x: list of x-values
+            - y: list of y-values
+            - name (optional): trace label
+        """
+        x = data.get("x", [])
+        y = data.get("y", [])
+        name = data.get("name", "Line")
+
         fig = go.Figure(
-            data=[go.Scatter(x=self.data['Date'], y=self.data['Value'], mode='lines')])
+            data=[go.Scatter(x=x, y=y, mode="lines", name=name)]
+        )
         return fig
 
 

@@ -11,7 +11,7 @@ def norm_config():
 
 
 @pytest.fixture
-def csv_dir(tmp_path: Path):
+def messy_csv_dir(tmp_path: Path):
     """Fixture: make a temp dir with messy CSVs, then tear it down."""
     d = tmp_path / "july"
     d.mkdir()
@@ -34,6 +34,32 @@ def csv_dir(tmp_path: Path):
         "Category": ["Entertainment & Rec.", "Fees", "Groceries"],
         "Amount": [-12.99, -5.00, -45.25],
         "Status": ["Posted", "Posted", "Pending"]
+    })
+
+    df2.to_csv(d / "second.csv", index=False)
+
+    yield d
+
+
+@pytest.fixture()
+def clean_csv_dir(tmp_path: Path):
+    """Fixture: make a temp dir with clean CSVs, then tear it down."""
+    d = tmp_path / "july"
+    d.mkdir()
+
+    df1 = pd.DataFrame({
+        "date": ["2024-07-01", "2024-07-03", "2024-07-05"],
+        "description": ["Netflix Subscription", "Whole Foods Market", "Uber Ride"],
+        "category": ["Entertainment & Rec.", "Groceries", "Personal"],
+        "amount": [-15.99, -82.50, 23.75],
+    })
+
+    df1.to_csv(d / "first.csv", index=False)
+    df2 = pd.DataFrame({
+        "date": ["2024-07-10", "2024-07-11", "2024-07-12"],
+        "description": ["Hulu Subscription", "Bank Fee", "Target Purchase"],
+        "category": ["Entertainment & Rec.", "Fees", "Groceries"],
+        "amount": [-12.99, -5.00, -45.25]
     })
 
     df2.to_csv(d / "second.csv", index=False)

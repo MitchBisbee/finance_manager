@@ -1,0 +1,158 @@
+/* ---------- Base Palette (dark) ---------- */
+* {
+    color: #e7e7e7;
+    selection-background-color: #2a6df4;
+    selection-color: #ffffff;
+}
+
+/* ---------- Windows ---------- */
+QMainWindow, QWidget {
+    background-color: #15171a;
+}
+
+/* ---------- Labels & Text ---------- */
+QLabel {
+    color: #e7e7e7;
+    font-size: 14px;
+}
+
+/* Headings (use objectName or className on specific labels if desired) */
+QLabel#title, QLabel.heading {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+/* ---------- Inputs ---------- */
+QLineEdit, QTextEdit, QPlainTextEdit {
+    background-color: #1d2025;
+    border: 1px solid #2a2f36;
+    border-radius: 6px;
+    padding: 6px 8px;
+    selection-background-color: #2a6df4;
+}
+
+QLineEdit:focus, QTextEdit:focus, QPlainTextEdit:focus {
+    border: 1px solid #2a6df4;
+    background-color: #20242a;
+}
+
+/* ---------- Buttons ---------- */
+QPushButton {
+    background-color: #2a6df4;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-weight: 600;
+}
+
+QPushButton:hover {
+    background-color: #1f5bce;
+}
+
+QPushButton:pressed {
+    background-color: #1749a6;
+}
+
+QPushButton:disabled {
+    background-color: #3a3f47;
+    color: #9aa0a6;
+}
+
+/* Subtle “secondary” button style via objectName */
+QPushButton#secondary {
+    background-color: #2a2f36;
+    color: #e7e7e7;
+}
+QPushButton#secondary:hover {
+    background-color: #343a43;
+}
+
+/* ---------- Combobox ---------- */
+QComboBox {
+    background-color: #1d2025;
+    border: 1px solid #2a2f36;
+    border-radius: 6px;
+    padding: 6px 8px;
+}
+QComboBox:focus {
+    border: 1px solid #2a6df4;
+    background-color: #20242a;
+}
+QComboBox::drop-down {
+    border: none;
+    width: 22px;
+}
+QComboBox QAbstractItemView {
+    background-color: #1d2025;
+    border: 1px solid #2a2f36;
+    selection-background-color: #2a6df4;
+    selection-color: #ffffff;
+}
+
+/* ---------- Scroll Areas ---------- */
+QScrollArea {
+    border: none;
+    background-color: transparent;
+}
+
+/* ScrollBars */
+QScrollBar:horizontal, QScrollBar:vertical {
+    background: #14161a;
+    border: none;
+    margin: 0px;
+}
+QScrollBar::handle:horizontal, QScrollBar::handle:vertical {
+    background: #2a2f36;
+    min-width: 30px;
+    min-height: 30px;
+    border-radius: 6px;
+}
+QScrollBar::handle:hover {
+    background: #343a43;
+}
+QScrollBar::add-line, QScrollBar::sub-line {
+    background: transparent;
+    border: none;
+}
+
+/* ---------- Tables / Views ---------- */
+QTableView, QListView, QTreeView {
+    background-color: #171a1e;
+    border: 1px solid #2a2f36;
+    gridline-color: #2a2f36;
+    selection-background-color: #2a6df4;
+    selection-color: #ffffff;
+}
+QHeaderView::section {
+    background-color: #1d2025;
+    color: #cbd1d8;
+    padding: 6px 8px;
+    border: 1px solid #2a2f36;
+}
+
+/* ---------- GroupBox / Cards ---------- */
+QGroupBox {
+    border: 1px solid #2a2f36;
+    border-radius: 8px;
+    margin-top: 12px;
+    padding: 8px;
+}
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 10px;
+    padding: 0 4px;
+    color: #cbd1d8;
+}
+
+/* ---------- Links ---------- */
+QLabel[foregroundRole="LinkText"], QLabel.link {
+    color: #6aa2ff;
+}
+
+/* ---------- QWebEngineView (frame border nuance) ---------- */
+QWebEngineView {
+    background: #15171a;
+    border: 1px solid #2a2f36;
+    border-radius: 6px;
+}
