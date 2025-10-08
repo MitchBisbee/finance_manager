@@ -3,6 +3,7 @@
 
 # pylint: disable=no-name-in-module
 from PySide6.QtCore import Qt
+from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWidgets import (
     QLabel,
     QHBoxLayout,
@@ -10,7 +11,7 @@ from PySide6.QtWidgets import (
     QPushButton,
     QScrollArea,
     QVBoxLayout,
-    QWidget,
+    QWidget
 )
 
 from managers.finances import FinanceManager
@@ -49,51 +50,33 @@ class MainWindow(QMainWindow):
         self.scroll_area.setWidget(self.main_container)
         self.main_layout = QVBoxLayout(self.main_container)
 
-        # Placeholder Label
-        self.main_layout.addWidget(
-            QLabel("Place data tile plots here. Budget plot, spending and one other")
-        )
-
-        # Horizontal Scroll Space 1 Setup
-        self.setup_h_scroll_space1()
+        self.setup_plot_area()
 
         # Middle Layout for Account Information
-        self.setup_middle_layout()
+        # self.setup_middle_layout()
 
         # Horizontal Scroll Space 2 Setup
-        self.main_layout.addWidget(QLabel("Upcoming Bills"))
-        self.setup_h_scroll_space2()
+        # self.main_layout.addWidget(QLabel("Upcoming Bills"))
+        # self.setup_h_scroll_space2()
 
         # Bottom Layout
-        self.setup_btm_layout()
+        # self.setup_btm_layout()
 
-    def setup_h_scroll_space1(self):
-        """Creates a horizontal scroll area in window for plots. Uses QHBoxLayout."""
-        h_scroll_area1 = QScrollArea()
-        h_scroll_area1.setWidgetResizable(True)
-        h_scroll_area1.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-        h_scroll_area1.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+    # TODO: Add the bar chart, spending versus earned to this method
+    def setup_plot_area(self):
+        """Creates a plot area displaying the expense category chart."""
+        expenses_html = self._finance_manager.plot_expense_categories()
 
-        scroll_widget1 = QWidget()  # This will contain the QHBoxLayout
-        h_scroll_area1.setWidget(scroll_widget1)
+        web_view_widget = QWebEngineView()
+        web_view_widget.setHtml(expenses_html)
 
-        # Set the layout for the container widget
-        top_layout = QHBoxLayout(scroll_widget1)
+        plot_layout = QHBoxLayout()
+        plot_layout.addWidget(web_view_widget)
 
-        # Example plot widgets from Manager API
-        # budget_plot = self.plot_budget(month="test")
-        expense_cat_plot = self._finance_manager.plot_expense_categories()
-        # top_layout.addWidget(budget_plot)
-        if expense_cat_plot is not None:
-            top_layout.addWidget(expense_cat_plot)
-        else:
-            top_layout.addWidget(QLabel("No expense chart available"))
-        # Optionally, adjust the container widget's size based on the number of plots
-        total_width = 500 * 20  # tune based on actual plot widget widths
-        scroll_widget1.setMinimumWidth(total_width)
+        plot_container = QWidget()
+        plot_container.setLayout(plot_layout)
 
-        # Add the scroll area to the main layout
-        self.main_layout.addWidget(h_scroll_area1)
+        self.main_layout.addWidget(plot_container)
 
     def setup_middle_layout(self):
         """Creates a middle area in window. Uses QVBoxLayout."""

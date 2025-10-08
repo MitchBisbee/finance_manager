@@ -70,13 +70,7 @@ class FinanceManager:
                     'values': grouped_data.values,
                     'name': "Expenses"}
             fig = PlotlyPlots.pie_chart(data)
-
-            html_string = to_html(fig, full_html=False, include_plotlyjs='cdn')
-
-            # Create a QWebEngineView to display the HTML (PySide6)
-            webview = QWebEngineView()
-            webview.setHtml(html_string)
-            return webview
+            return to_html(fig, full_html=False, include_plotlyjs='cdn')
         else:
             print("Data could not be plotted.")
 
@@ -166,6 +160,6 @@ class FinanceManager:
             subscription_names)]
         return (duplicate_subscr_data.
                 drop_duplicates(subset=["description"], keep="first"))
-    
+
     if __name__ == "__main__":
         pass

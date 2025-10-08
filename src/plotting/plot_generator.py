@@ -20,7 +20,8 @@ class PlotlyPlots:
         name = data.get("name", "Pie Chart")
 
         fig = go.Figure(
-            data=[go.Pie(labels=labels, values=values, name=name)]
+            data=[go.Pie(labels=labels, values=values,
+                         name=name, textposition="inside")]
         )
         return fig
 
