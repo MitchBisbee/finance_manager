@@ -1,6 +1,16 @@
 """A testing module for the cleaner module.
 """
+import pytest
+import pandas as pd
 from processing.cleaners import CSVDataCleaner
+
+
+@pytest.fixture()
+def category_df():
+    return pd.DataFrame({
+        "description": ["Netflix", "COMCAST XFINITY", "Random Vendor"],
+        "category":   ["", "", ""]
+    })
 
 
 def test_load_and_clean_directory(messy_csv_dir, norm_config):
@@ -27,3 +37,17 @@ def test_load_and_clean_directory(messy_csv_dir, norm_config):
             assert "description" in df.columns
             assert "category" in df.columns
             assert "amount" in df.columns
+
+
+def test_apply_category_mapping_exact(category_df):
+    """Tests the apply_category_mapping_exact method
+
+    Asserts:
+        - `out.loc[0, "category"] == "Entertainment"`
+        - `out.loc[1, "category"] == "Television"`
+    """
+    mapping = {"Netflix": "Entertainment", "Comcast Xfinity": "Television"}
+    out = CSVDataCleaner.apply_category_mapping(
+        category_df, mapping=mapping)
+    assert out.loc[0, "category"] == "Entertainment"
+    assert out.loc[1, "category"] == "Television"

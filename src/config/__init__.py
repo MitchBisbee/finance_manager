@@ -19,4 +19,14 @@ def load_stylesheet(app, filename: str = "style.qss") -> None:
         app.setStyleSheet(qss_path.read_text(encoding="utf-8"))
 
 
-__all__ = ["normalization_config", "filters_config"]
+def load_description_category_map(
+        filename: str = "description_category_map.json") -> dict[str, str]:
+    """
+        Loads the descripion category map.
+    """
+    cfg = Path(__file__).resolve().parent / filename
+    with cfg.open("r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+__all__ = ["normalization_config", "filters_config",]

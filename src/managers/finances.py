@@ -5,7 +5,7 @@ import pandas as pd
 from plotly.io import to_html
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from plotting.plot_generator import PlotlyPlots
-from config import filters_config
+from config import filters_config, load_description_category_map
 from utilities.dates import (current_month_range, previous_month_range,
                              last_three_months_to_today)
 
@@ -166,6 +166,6 @@ class FinanceManager:
             subscription_names)]
         return (duplicate_subscr_data.
                 drop_duplicates(subset=["description"], keep="first"))
-
+    
     if __name__ == "__main__":
         pass
