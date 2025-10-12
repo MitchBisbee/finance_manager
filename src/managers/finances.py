@@ -3,16 +3,10 @@
 from typing import List
 import pandas as pd
 from plotly.io import to_html
-from PySide6.QtWebEngineWidgets import QWebEngineView
 from plotting.plot_generator import PlotlyPlots
-from config import filters_config, load_description_category_map
+from config import filters_config
 from utilities.dates import (current_month_range, previous_month_range,
                              last_three_months_to_today)
-
-# TODO: might want to add a method that will write to a google sheet in our shared
-# email. I think Morgan would like that. Or maybe it could email her a report?
-# need to add a feature to plot expensis based on previous month, three month range
-# should be the max that plotting can do
 
 
 class FinanceManager:
@@ -47,28 +41,51 @@ class FinanceManager:
         """
         return pd.concat([self._checking_df, self._credit_df], ignore_index=True)
 
-    def expense_categories(self) -> pd.DataFrame:
+    def expense_categories(self, month_interval: str = None) -> pd.DataFrame:
         """Groups a data frame into expense categories.
-
+        Args:
+            month_interval (str): "current_month", "previous_month","three_month"
         Returns:
             pandas.core.groupby.DataFrameGroupBy: GroupBy object with data grouped
             into expense categories.
         """
-        return (abs(self._concat_df.groupby("category")["amount"].sum()))
+        copy_df = self._concat_df.copy()
+        interval_dict = {"current_month": current_month_range(),
+                         "previous_month": previous_month_range(),
+                         "three_months": last_three_months_to_today()}
 
-    def plot_expensis_versus_income(self):
+        start, end = interval_dict.get(month_interval, (None, None))
+        if start is None or end is None:
+            return abs(copy_df.groupby("category")["amount"].sum())
+
+        copy_df["date"] = pd.to_datetime(copy_df["date"], errors="coerce")
+        mask = (copy_df["date"] >= start) & (copy_df["date"] <= end)
+        copy_df = copy_df.loc[mask]
+        return abs(copy_df.groupby("category")["amount"].sum())
+
+    def plot_expenses_versus_income(self, month_interval=None):
         """Plots a bar chart showing expensis versus income for a month.
         """
-        pass
+        expensis = self.total_expensis_last_month()
+        income = self.total_income_last_month()
+        data = {"x": ["expenses", "income"], "y": [
+            expensis, income],  "name": "expenses vs income",
+            "title": "Expensis vs Income"}
+        fig = PlotlyPlots().bar_chart(data)
+        return to_html(fig, full_html=False, include_plotlyjs='cdn')
 
     def plot_expense_categories(self, month_interval=None):
-        """Plots the expense categories in a pie chart."""
-
-        grouped_data = self.expense_categories()
+        """Plots the expense categories in a pie chart.
+           Args:
+             month_interval (str): "current_month", "previous_month",
+             "three_month"
+        """
+        grouped_data = self.expense_categories(month_interval=month_interval)
         if grouped_data is not None:
             data = {'labels': grouped_data.index,
                     'values': grouped_data.values,
-                    'name': "Expenses"}
+                    'name': "Categorical Expenses",
+                    'title': "Categorical Expenses"}
             fig = PlotlyPlots.pie_chart(data)
             return to_html(fig, full_html=False, include_plotlyjs='cdn')
         else:
@@ -117,9 +134,6 @@ class FinanceManager:
     def total_expensis_last_month(self):
         """Computes the total amount spent in the previos month.
 
-        Args:
-            df (pd.DataFrame): data frame of personal finanances
-
         Returns:
             float: total amount spent in a period
         """
@@ -158,6 +172,8 @@ class FinanceManager:
         )
         duplicate_subscr_data = filtered[filtered["description"].isin(
             subscription_names)]
+        duplicate_subscr_data.loc[:,
+                                  "amount"] = duplicate_subscr_data["amount"].abs()
         return (duplicate_subscr_data.
                 drop_duplicates(subset=["description"], keep="first"))
 

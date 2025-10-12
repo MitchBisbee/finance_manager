@@ -18,11 +18,24 @@ class PlotlyPlots:
         labels = data.get("labels", [])
         values = data.get("values", [])
         name = data.get("name", "Pie Chart")
+        title = data.get("name", "Pie Chart")
 
         fig = go.Figure(
             data=[go.Pie(labels=labels, values=values,
                          name=name, textposition="inside")]
         )
+        # Centered title at the top
+        fig.update_layout(
+            title={
+                "text": title,
+                "y": 0.95,          # vertical position (0=bottom, 1=top)
+                "x": 0.5,           # horizontal center
+                "xanchor": "center",
+                "yanchor": "top"
+            },
+            title_font=dict(size=20, color="#15171a"),
+        )
+
         return fig
 
     @staticmethod
@@ -53,14 +66,29 @@ class PlotlyPlots:
             - x: list of categories (x-axis)
             - y: list of values (heights)
             - name (optional): trace name
+            - title (optional): chart title text
         """
         x = data.get("x", [])
         y = data.get("y", [])
         name = data.get("name", "Bar Chart")
+        title = data.get("title", "Bar Chart")
 
         fig = go.Figure(
             data=[go.Bar(x=x, y=y, name=name)]
         )
+
+        # Centered title at the top
+        fig.update_layout(
+            title={
+                "text": title,
+                "y": 0.95,          # vertical position (0=bottom, 1=top)
+                "x": 0.5,           # horizontal center
+                "xanchor": "center",
+                "yanchor": "top"
+            },
+            title_font=dict(size=20, color="#15171a"),
+        )
+
         return fig
 
     @staticmethod
@@ -76,10 +104,23 @@ class PlotlyPlots:
         x = data.get("x", [])
         y = data.get("y", [])
         name = data.get("name", "Line")
+        title = data.get("title", "Line")
 
         fig = go.Figure(
             data=[go.Scatter(x=x, y=y, mode="lines", name=name)]
         )
+        # Centered title at the top
+        fig.update_layout(
+            title={
+                "text": title,
+                "y": 0.95,          # vertical position (0=bottom, 1=top)
+                "x": 0.5,           # horizontal center
+                "xanchor": "center",
+                "yanchor": "top"
+            },
+            title_font=dict(size=20, color="#15171a"),
+        )
+
         return fig
 
 

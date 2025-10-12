@@ -105,8 +105,15 @@ def test_expense_categories(_dict_list: List[Dict[uuid4, pd.DataFrame]]):
        Asserts:
             -categories.dtypes == "float64"
     """
+    record = _dict_list.pop()
+    new_record = {"credit": list(record.values()).pop()}
+    df = new_record["credit"]
+    df["date"] = pd.to_datetime(df["date"], errors="coerce")
+    new_record["credit"] = df
+    _dict_list.append(new_record)
     manager = FinanceManager(data_frame_list=_dict_list)
     categories = manager.expense_categories()
+
     assert categories.dtypes == "float64"
 
 

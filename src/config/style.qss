@@ -13,7 +13,7 @@ QMainWindow, QWidget {
 /* ---------- Labels & Text ---------- */
 QLabel {
     color: #e7e7e7;
-    font-size: 14px;
+    font-size: 18px;
 }
 
 /* Headings (use objectName or className on specific labels if desired) */
@@ -63,6 +63,7 @@ QPushButton:disabled {
 QPushButton#secondary {
     background-color: #2a2f36;
     color: #e7e7e7;
+    font-size:16px;
 }
 QPushButton#secondary:hover {
     background-color: #343a43;
@@ -74,6 +75,7 @@ QComboBox {
     border: 1px solid #2a2f36;
     border-radius: 6px;
     padding: 6px 8px;
+    font-size: 16px;
 }
 QComboBox:focus {
     border: 1px solid #2a6df4;
@@ -96,7 +98,7 @@ QScrollArea {
     background-color: transparent;
 }
 
-/* ScrollBars */
+/* ScrollBars (refined: slimmer, rounded, clearer hover) */
 QScrollBar:horizontal, QScrollBar:vertical {
     background: #14161a;
     border: none;
@@ -104,12 +106,12 @@ QScrollBar:horizontal, QScrollBar:vertical {
 }
 QScrollBar::handle:horizontal, QScrollBar::handle:vertical {
     background: #2a2f36;
-    min-width: 30px;
-    min-height: 30px;
-    border-radius: 6px;
+    min-width: 16px;   /* slimmer */
+    min-height: 16px;  /* slimmer */
+    border-radius: 8px;/* more rounded */
 }
 QScrollBar::handle:hover {
-    background: #343a43;
+    background: #3a4048; /* clearer hover */
 }
 QScrollBar::add-line, QScrollBar::sub-line {
     background: transparent;
@@ -117,26 +119,81 @@ QScrollBar::add-line, QScrollBar::sub-line {
 }
 
 /* ---------- Tables / Views ---------- */
-QTableView, QListView, QTreeView {
+/* Base views */
+QTableView, QTableWidget, QListView, QTreeView {
     background-color: #171a1e;
     border: 1px solid #2a2f36;
+    border-radius: 6px;
     gridline-color: #2a2f36;
     selection-background-color: #2a6df4;
     selection-color: #ffffff;
+    font-size: 13px;
 }
+
+/* Comfortable cell padding */
+QTableView::item, QTableWidget::item {
+    padding: 6px 8px;
+}
+
+/* Alternating row color (enable in code with setAlternatingRowColors(true)) */
+QTableView::item:alternate, QTableWidget::item:alternate {
+    background: #15181c;
+}
+
+/* Row hover (brighter for stronger pop) */
+QTableView::item:hover, QTableWidget::item:hover {
+    background: #34404d;
+}
+
+/* Header (base) */
 QHeaderView::section {
     background-color: #1d2025;
     color: #cbd1d8;
     padding: 6px 8px;
     border: 1px solid #2a2f36;
+    font-weight: 600;
+}
+
+/* Per-table header text color overrides via objectName */
+QTableView#categoriesTable QHeaderView::section,
+QTableWidget#categoriesTable QHeaderView::section {
+    color: #2b7a78;   /* teal for Categories */
+}
+
+QTableView#subscriptionsTable QHeaderView::section,
+QTableWidget#subscriptionsTable QHeaderView::section {
+    color: #6aa2ff;   /* blue for Subscriptions */
+}
+
+/* ---------- Table & GroupBox Layout Spacing ---------- */
+/* Add breathing room so widgets aren’t flush against window edges */
+QTableView, QTableWidget, QGroupBox {
+    margin: 16px;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    border-radius: 6px;
+}
+
+/* Equal inner horizontal gaps when inside a splitter */
+QSplitter QTableView,
+QSplitter QTableWidget,
+QSplitter QGroupBox {
+    margin-left: 16px;
+    margin-right: 24px;
+}
+
+/* Inner gap between table content and scrollbars */
+QTableView, QTableWidget {
+    padding-right: 12px;  /* space before vertical scrollbar */
+    padding-bottom: 8px;  /* space before horizontal scrollbar */
 }
 
 /* ---------- GroupBox / Cards ---------- */
 QGroupBox {
     border: 1px solid #2a2f36;
     border-radius: 8px;
-    margin-top: 12px;
-    padding: 8px;
+    margin-top: 12px;  /* kept for compatibility; outer spacing also applied above */
+    padding: 8px 12px;
 }
 QGroupBox::title {
     subcontrol-origin: margin;
@@ -146,7 +203,8 @@ QGroupBox::title {
 }
 
 /* ---------- Links ---------- */
-QLabel[foregroundRole="LinkText"], QLabel.link {
+/* Use #link to target QLabel with objectName('link'); attribute selectors only work with dynamic Qt properties */
+QLabel[foregroundRole="LinkText"], QLabel#link {
     color: #6aa2ff;
 }
 

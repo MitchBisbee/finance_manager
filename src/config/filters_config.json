@@ -9,6 +9,14 @@
         "Income",
         "Utilities",
         "Transfer",
-        "Payroll"
+        "Payroll",
+        "Paycheck",
+        "Groceries",
+        "Gas",
+        "Food & Drink",
+        "Travel",
+        "Rental Car & Taxi",
+        "Veterinary",
+        "Rent"
     ]
 }
