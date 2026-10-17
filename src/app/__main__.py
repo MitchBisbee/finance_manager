@@ -14,7 +14,7 @@ from config import load_stylesheet
 def main() -> None:
     """Entry point to the app.
     """
-    data_path = os.getenv("FINANCIAL_DATA")
+    data_path = r"C:\Users\Owner\Desktop\finances\2025\JUL-SEP"
     cleaner = CSVDataCleaner(path=Path(data_path))
     df_list = cleaner.load_and_clean()
     app = QApplication(sys.argv)

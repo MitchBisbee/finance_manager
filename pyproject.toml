@@ -3,16 +3,16 @@ name = "finance-manager"
 version = "0.1.0"
 description = "Finance manager environment"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.14"
 
-# Core runtime deps
 dependencies = [
     "pandas",
     "plotly",
     "requests",
     "PySide6",
     "PySide6-Addons",
-    "typing", 
+    "typing",
+    "plaid-python>=45.0.0",
 ]
 
 [project.optional-dependencies]
