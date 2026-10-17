@@ -3,13 +3,13 @@
 from typing import List
 import pandas as pd
 from plotly.io import to_html
-from plotting.plot_generator import PlotlyPlots
+from utilities.plot_generator import PlotlyPlots
 from config import filters_config
 from utilities.dates import (current_month_range, previous_month_range,
                              last_three_months_to_today)
 
 
-class FinanceManager:
+class FinanceService:
     """Class for interrogating financial data, and creating budgets."""
 
     def __init__(self, data_frame_list: List[dict]) -> None:

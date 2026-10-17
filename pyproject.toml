@@ -13,6 +13,8 @@ dependencies = [
     "PySide6-Addons",
     "typing",
     "plaid-python>=45.0.0",
+    "sqlalchemy>=2.1.5",
+    "psycopg>=3.3.6",
 ]
 
 [project.optional-dependencies]
@@ -21,7 +23,6 @@ dev = [
     "ruff",        
     "pytest",     
     "pytest-cov",
-    "uuid" 
 ]
 
 [build-system]
@@ -31,12 +32,8 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools]
 include-package-data = true
 
-# Using src/ layout
 [tool.setuptools.packages.find]
 where = ["src"]
-# Adjust include list to match your actual package dirs under src/
-include = ["app*", "bank*", "managers*", "plotting*","processing*","config*","utilities*"]
-exclude = ["tests*", "docs*", "examples*"]
 
 [project.scripts]
 app = "app.__main__:main"

@@ -3,7 +3,7 @@
 from pathlib import Path
 from typing import List, Dict
 import pandas as pd
-from config import normalization_config, load_description_category_map
+from finance_manager.config import normalization_config, load_description_category_map
 
 
 class CSVDataCleaner:

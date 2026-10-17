@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from managers.finances import FinanceManager
+from finance_manager.services.finances import FinanceManager
 
 
 @pytest.fixture(name="_dict_list")

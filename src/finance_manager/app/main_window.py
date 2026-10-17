@@ -19,8 +19,8 @@ from PySide6.QtWidgets import (
     QFileDialog,
     QSizePolicy
 )
-from utilities.constants import SUBSCRIPTIONS_TABLE_HEADERS, SNAPSHOT_MAP
-from managers.finances import FinanceManager
+from finance_manager.utilities.constants import SUBSCRIPTIONS_TABLE_HEADERS, SNAPSHOT_MAP
+from finance_manager.services.finances import FinanceService
 
 
 class MainWindow(QMainWindow):
@@ -31,7 +31,7 @@ class MainWindow(QMainWindow):
         QMainWindow (obj): Qt main window
     """
 
-    def __init__(self, finance_manager: FinanceManager):
+    def __init__(self, finance_manager: FinanceService):
         QMainWindow.__init__(self)
         self._finance_manager = finance_manager
         self.setWindowTitle("Finance Manager")

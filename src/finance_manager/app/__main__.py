@@ -2,13 +2,13 @@
 """
 # pylint: disable=no-name-in-module
 import sys
-import os
+
 from pathlib import Path
 from PySide6.QtWidgets import QApplication
-from app.main_window import MainWindow
-from managers.finances import FinanceManager
-from processing.cleaners import CSVDataCleaner
-from config import load_stylesheet
+from finance_manager.app.main_window import MainWindow
+from finance_manager.services.finances import FinanceService
+from finance_manager.utilities.cleaners import CSVDataCleaner
+from finance_manager.config import load_stylesheet
 
 
 def main() -> None:
@@ -20,7 +20,7 @@ def main() -> None:
     app = QApplication(sys.argv)
     load_stylesheet(app)
     window = MainWindow(
-        finance_manager=FinanceManager(data_frame_list=df_list)
+        finance_manager=FinanceService(data_frame_list=df_list)
     )
     window.show()
     try:
