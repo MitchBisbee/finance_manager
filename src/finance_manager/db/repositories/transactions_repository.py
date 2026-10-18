@@ -5,9 +5,8 @@ from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from finance_manager.db.models.transaction_models import Category, Transaction
-from finance_manager.db.connections import PostgresClient
-from finance_manager.repositories.interfaces import ITransactionRepository
-from finance_manager.db.repositories.interfaces import IClientFactory
+from finance_manager.db.repositories.interfaces import ITransactionRepository
+from finance_manager.db.connections.interfaces import IClientFactory
 
 
 class TransactionRepository(ITransactionRepository):

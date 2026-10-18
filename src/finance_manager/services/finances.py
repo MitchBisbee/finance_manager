@@ -1,11 +1,13 @@
 """Module for analyzing finances and creating budgets."""
 # pylint: disable=no-name-in-module
+from pathlib import Path
 from typing import List
 import pandas as pd
 from plotly.io import to_html
-from utilities.plot_generator import PlotlyPlots
-from config import filters_config
-from utilities.dates import (current_month_range, previous_month_range,
+from finance_manager.utilities.plot_generator import PlotlyPlots
+from finance_manager.config import filters_config
+from finance_manager.utilities.cleaners import CSVDataCleaner
+from finance_manager.utilities.dates import (current_month_range, previous_month_range,
                              last_three_months_to_today)
 
 
@@ -13,33 +15,57 @@ class FinanceService:
     """Class for interrogating financial data, and creating budgets."""
 
     def __init__(self, data_frame_list: List[dict]) -> None:
+        self._set_data(data_frame_list)
+
+    def _set_data(self, data_frame_list: List[dict]) -> None:
+        """Sets the checking, credit and combined data frames."""
         self._data_frames = data_frame_list
-        self._checking_df = self._set_checking_df()
-        self._credit_df = self._set_credit_df()
+        self._checking_df = self._set_account_df("checking")
+        self._credit_df = self._set_account_df("credit")
         self._concat_df = self._set_concat_df()
 
-    def _set_checking_df(self):
-        """Setter
+    def _set_account_df(self, account_type: str) -> pd.DataFrame:
+        """Returns the first data frame for an account type, with parsed
+        dates, or an empty frame if none was loaded.
         """
-        return next(
-            (item.get("checking")
-             for item in self._data_frames if item.get("checking") is not None),
+        df = next(
+            (item.get(account_type)
+             for item in self._data_frames if item.get(account_type) is not None),
             None
         )
-
-    def _set_credit_df(self):
-        """Setter
-        """
-        return next(
-            (item.get("credit")
-             for item in self._data_frames if item.get("credit") is not None),
-            None
-        )
+        if df is None:
+            return pd.DataFrame(
+                {"date": pd.Series(dtype="datetime64[ns]"),
+                 "description": pd.Series(dtype="object"),
+                 "category": pd.Series(dtype="object"),
+                 "amount": pd.Series(dtype="float64")})
+        df = df.copy()
+        df["date"] = pd.to_datetime(df["date"], errors="coerce")
+        return df
 
     def _set_concat_df(self):
         """Setter
         """
-        return pd.concat([self._checking_df, self._credit_df], ignore_index=True)
+        frames = [df for df in (self._checking_df, self._credit_df)
+                  if not df.empty]
+        if not frames:
+            return self._checking_df.copy()
+        return pd.concat(frames, ignore_index=True)
+
+    def load_data(self, path: str | Path) -> None:
+        """Loads a CSV file or a directory of CSV files.
+
+        Loaded account types (checking/credit) replace the existing data for
+        that account type; other account types are kept.
+
+        Args:
+            path: A CSV file or a directory containing CSV files.
+        """
+        loaded = CSVDataCleaner(path=Path(path)).load_and_clean()
+        loaded_types = {key for item in loaded for key in item}
+        kept = [item for item in self._data_frames
+                if not loaded_types.intersection(item)]
+        self._set_data(loaded + kept)
 
     def expense_categories(self, month_interval: str = None) -> pd.DataFrame:
         """Groups a data frame into expense categories.
@@ -177,5 +203,6 @@ class FinanceService:
         return (duplicate_subscr_data.
                 drop_duplicates(subset=["description"], keep="first"))
 
-    if __name__ == "__main__":
-        pass
+
+if __name__ == "__main__":
+    pass

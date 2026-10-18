@@ -2,7 +2,21 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from config import normalization_config
+from finance_manager.config import normalization_config
+
+_TEST_TYPES = ("unit", "integration", "system")
+
+
+def pytest_configure(config):
+    for marker in _TEST_TYPES:
+        config.addinivalue_line("markers", f"{marker}: {marker} tests")
+
+
+def pytest_collection_modifyitems(config, items):
+    for item in items:
+        for marker in _TEST_TYPES:
+            if marker in Path(item.path).parts:
+                item.add_marker(getattr(pytest.mark, marker))
 
 
 @pytest.fixture

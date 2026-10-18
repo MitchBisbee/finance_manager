@@ -37,4 +37,8 @@ include-package-data = true
 where = ["src"]
 
 [project.scripts]
-app = "app.__main__:main"
+app = "finance_manager.app.__main__:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--strict-markers"

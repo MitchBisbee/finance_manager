@@ -15,16 +15,21 @@ class CSVDataCleaner:
         self._drop_list = normalization_config["drop_list"]
 
     def load_and_clean(self) -> List[dict]:
-        """Load and clean all CSV files in a directory.
+        """Load and clean a CSV file, or all CSV files in a directory.
 
         Returns:
             list: {account_type: cleaned DataFrame}
         """
-        if not self.path.is_dir():
-            raise ValueError(f"{self.path} is not a directory")
+        if self.path.is_dir():
+            files = list(self.path.glob("*.csv"))
+        elif self.path.is_file() and self.path.suffix.lower() == ".csv":
+            files = [self.path]
+        else:
+            raise ValueError(
+                f"{self.path} is not a directory or a CSV file")
 
         cleaned = []
-        for file in self.path.glob("*.csv"):
+        for file in files:
             record = {}
             df = pd.read_csv(file)
             key = "credit" if "Transaction Date" in df.columns else "checking"

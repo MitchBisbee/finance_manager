@@ -97,6 +97,11 @@ def data_frame() -> pd.DataFrame:
 
     df = pd.DataFrame(data)
     df["date"] = pd.to_datetime(df["date"], errors="coerce")
+    # Shift Jul-Sep 2025 so September lands on the current month, keeping the
+    # data inside the rolling three month windows used by FinanceService.
+    today = pd.Timestamp.today()
+    months = (today.year - 2025) * 12 + (today.month - 9)
+    df["date"] = df["date"] + pd.DateOffset(months=months)
     return df
 
 

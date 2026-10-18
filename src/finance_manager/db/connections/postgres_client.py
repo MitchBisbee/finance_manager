@@ -10,7 +10,7 @@ from threading import Lock
 from typing import Any, ClassVar
 from sqlalchemy import Engine, create_engine, text
 from sqlalchemy.orm import Session, sessionmaker
-from finance_manager.connections.interfaces import IClientFactory
+from finance_manager.db.connections.interfaces import IClientFactory
 
 
 class PostgresClient(IClientFactory):

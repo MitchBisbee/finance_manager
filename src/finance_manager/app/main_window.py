@@ -17,6 +17,7 @@ from PySide6.QtWidgets import (
     QSplitter,
     QComboBox,
     QFileDialog,
+    QMessageBox,
     QSizePolicy
 )
 from finance_manager.utilities.constants import SUBSCRIPTIONS_TABLE_HEADERS, SNAPSHOT_MAP
@@ -55,18 +56,13 @@ class MainWindow(QMainWindow):
 
     def setup_plot_area(self) -> None:
         """Creates a plot area displaying the expense category chart."""
-        expenses_html = self._finance_manager.plot_expense_categories(
-            month_interval=self.month_interval)
-        expenses_vs_income_html = self._finance_manager.plot_expenses_versus_income()
-        expenses_widget = QWebEngineView()
-        expenses_widget.setHtml(expenses_html)
-
-        expenses_vs_income_widget = QWebEngineView()
-        expenses_vs_income_widget.setHtml(expenses_vs_income_html)
+        self.expenses_widget = QWebEngineView()
+        self.expenses_vs_income_widget = QWebEngineView()
+        self._refresh_plots()
 
         plot_layout = QHBoxLayout()
-        plot_layout.addWidget(expenses_widget)
-        plot_layout.addWidget(expenses_vs_income_widget)
+        plot_layout.addWidget(self.expenses_widget)
+        plot_layout.addWidget(self.expenses_vs_income_widget)
 
         plot_container = QWidget()
         plot_container.setLayout(plot_layout)
@@ -112,29 +108,45 @@ class MainWindow(QMainWindow):
         """Creates a middle area with two side-by-side tables:
         Categories and Subscriptions (from a DataFrame)."""
         parent_layout = QVBoxLayout()
-        splitter = QSplitter(Qt.Horizontal)
-        splitter.setChildrenCollapsible(False)
+        self.tables_splitter = QSplitter(Qt.Horizontal)
+        self.tables_splitter.setChildrenCollapsible(False)
+        self._refresh_tables()
 
-        # Left: Categories
-        categories_table = self._build_categories_table()
-        splitter.addWidget(categories_table)
-
-        # Right: Subscriptions (DataFrame: date, description, category, amount)
-        subs_df = self._finance_manager.get_subscriptions()
-
-        subscriptions_table = self._build_subscriptions_table_from_df(subs_df)
-        splitter.addWidget(subscriptions_table)
-
-        # Initial ratio
-        splitter.setStretchFactor(0, 2)
-        splitter.setStretchFactor(1, 2)
-
-        parent_layout.addWidget(splitter)
+        parent_layout.addWidget(self.tables_splitter)
         self.main_layout.addLayout(parent_layout)
+
+    def refresh(self) -> None:
+        """Redraws the plots and tables from the current data and interval."""
+        self._refresh_plots()
+        self._refresh_tables()
 
     # -----------------------
     # Private helpers
     # -----------------------
+    def _refresh_plots(self) -> None:
+        """Sets the chart HTML for the selected month interval."""
+        self.expenses_widget.setHtml(
+            self._finance_manager.plot_expense_categories(
+                month_interval=self.month_interval) or "")
+        self.expenses_vs_income_widget.setHtml(
+            self._finance_manager.plot_expenses_versus_income())
+
+    def _refresh_tables(self) -> None:
+        """Rebuilds the categories (left) and subscriptions (right) tables."""
+        while self.tables_splitter.count():
+            old = self.tables_splitter.widget(0)
+            old.setParent(None)
+            old.deleteLater()
+
+        self.tables_splitter.addWidget(self._build_categories_table())
+        subs_df = self._finance_manager.get_subscriptions()
+        self.tables_splitter.addWidget(
+            self._build_subscriptions_table_from_df(subs_df))
+
+        # Initial ratio
+        self.tables_splitter.setStretchFactor(0, 2)
+        self.tables_splitter.setStretchFactor(1, 2)
+
     def _build_table(self, headers, rows, right_align_cols=None, stretch_col=0):
         """Build a non-editable QTableWidget with header styling and same sizing."""
         right_align_cols = set(right_align_cols or [])
@@ -173,7 +185,7 @@ class MainWindow(QMainWindow):
     def _build_categories_table(self):
         """Create table from expense_categories() -> dict {category: amount}."""
         data = self._finance_manager.expense_categories(
-            month_interval="previous_month")
+            month_interval=self.month_interval)
         rows = []
         for cat, amt in data.items():
             amt_text = f"${amt:,.2f}" if isinstance(
@@ -209,25 +221,25 @@ class MainWindow(QMainWindow):
         """Opens a file dialog to select and load financial data."""
         dialog = QFileDialog(self)
         dialog.setFileMode(QFileDialog.ExistingFile)
-        dialog.setNameFilter("Excel Files (*.xlsx *.xls);;CSV Files (*.csv)")
+        dialog.setNameFilter("CSV Files (*.csv)")
 
         if dialog.exec():
             selected_files = dialog.selectedFiles()
             if selected_files:
                 file_path = selected_files[0]
-                if hasattr(self._finance_manager, "load_data"):
-                    try:
-                        self._finance_manager.load_data(file_path)
-                        # Optional: feedback / logging hook
-                        if hasattr(self, "_update_status"):
-                            self._update_status(f"Loaded: {file_path}")
-                    except Exception as e:
-                        print(f"Error loading file: {e}")
+                try:
+                    self._finance_manager.load_data(file_path)
+                except Exception as e:  # pylint: disable=broad-except
+                    QMessageBox.warning(
+                        self, "Load failed", f"Error loading {file_path}:\n{e}")
+                    return
+                self.refresh()
 
     def _on_snapshot_changed(self):
         """Handles combo box selection change for spending snapshot."""
         selected_text = self.month_view_combo.currentText()
         self.month_interval = SNAPSHOT_MAP.get(selected_text)
+        self.refresh()
 
 
 if __name__ == "__main__":
