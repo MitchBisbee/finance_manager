@@ -41,3 +41,7 @@ class PlaidSandboxSessionFactory(IPlaidSessionFactory):
     def get_access_token(self) -> str:
         """Return the existing access token."""
         return self._access_token
+
+
+def get_plaid_sandbox_session_factory() -> IPlaidSessionFactory:
+    return PlaidSandboxSessionFactory()

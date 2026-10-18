@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from finance_manager.services.finances import FinanceManager
+from finance_manager.services.finances import FinanceService
 
 
 @pytest.fixture(name="_dict_list")
@@ -111,7 +111,7 @@ def test_expense_categories(_dict_list: List[Dict[uuid4, pd.DataFrame]]):
     df["date"] = pd.to_datetime(df["date"], errors="coerce")
     new_record["credit"] = df
     _dict_list.append(new_record)
-    manager = FinanceManager(data_frame_list=_dict_list)
+    manager = FinanceService(data_frame_list=_dict_list)
     categories = manager.expense_categories()
 
     assert categories.dtypes == "float64"
@@ -129,7 +129,7 @@ def test_get_current_month_credit_card_usage(
     df["date"] = pd.to_datetime(df["date"], errors="coerce")
     new_record["credit"] = df
     _dict_list.append(new_record)
-    manager = FinanceManager(data_frame_list=_dict_list)
+    manager = FinanceService(data_frame_list=_dict_list)
     usage = manager.get_current_month_credit_usage()
     assert isinstance(usage, np.float64)
 
@@ -144,7 +144,7 @@ def test_get_subscriptions(df: pd.DataFrame,
     copy.clear()
     copy.append(new_record)
     copy.append({"checking": df})
-    manager = FinanceManager(data_frame_list=copy)
+    manager = FinanceService(data_frame_list=copy)
     subscriptions = manager.get_subscriptions()
     assert set(subscriptions["description"]) == {
         "Comcast Xfinity", "Netflix", "Adobe Creative Cloud"}

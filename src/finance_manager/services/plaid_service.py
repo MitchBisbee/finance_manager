@@ -16,13 +16,9 @@ from plaid.exceptions import ApiException
 from plaid.model.transactions_sync_request import TransactionsSyncRequest
 
 from finance_manager.db.models.transaction_models import Category, Transaction
-from finance_manager.db.repositories.transactions_repository import (
-    TransactionRepository,
-)
 from finance_manager.dtos.transactions import ImportedTransactionDto
-from finance_manager.services.interfaces.plaid_factory_interfaces import (
-    IPlaidSessionFactory,
-)
+from finance_manager.services.interfaces.plaid_factory_interfaces import IPlaidSessionFactory
+from finance_manager.repositories.interfaces import ITransactionRepository
 from finance_manager.utilities.decorators import retry_until_transaction_ready
 
 
@@ -46,7 +42,7 @@ class PlaidService:
     def __init__(
         self,
         session_factory: IPlaidSessionFactory,
-        transaction_repository: TransactionRepository,
+        transaction_repository: ITransactionRepository,
     ) -> None:
         """Initialize the service with a Plaid session and repository.
 
@@ -238,3 +234,7 @@ class PlaidService:
         ):
             self._transaction_repository.create_transaction(transaction)
             self._transaction_repository.create_category(category)
+
+
+def get_plaid_service(session_factory: IPlaidSessionFactory, transaction_repository: ITransactionRepository):
+    return PlaidService(session_factory=session_factory, transaction_repository=transaction_repository)

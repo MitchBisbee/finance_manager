@@ -2,7 +2,7 @@
 """
 import pytest
 import pandas as pd
-from utilities.cleaners import CSVDataCleaner
+from finance_manager.utilities.cleaners import CSVDataCleaner
 
 
 @pytest.fixture()
