@@ -4,9 +4,9 @@ from contextlib import contextmanager
 from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from finance_manager.db.models.transaction_models import Category, Transaction
-from finance_manager.db.repositories.interfaces import ITransactionRepository
-from finance_manager.db.connections.interfaces import IClientFactory
+from db.models.transaction_models import Category, Transaction
+from db.repositories.interfaces import ITransactionRepository
+from db.connections.interfaces import IClientFactory
 
 
 class TransactionRepository(ITransactionRepository):

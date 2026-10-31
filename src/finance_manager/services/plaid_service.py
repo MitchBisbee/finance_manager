@@ -15,10 +15,10 @@ from uuid import uuid7
 from plaid.exceptions import ApiException
 from plaid.model.transactions_sync_request import TransactionsSyncRequest
 
-from finance_manager.db.models.transaction_models import Category, Transaction
+from db.models.transaction_models import Category, Transaction
 from finance_manager.dtos.transactions import ImportedTransactionDto
 from finance_manager.services.interfaces.plaid_factory_interfaces import IPlaidSessionFactory
-from finance_manager.db.repositories.interfaces import ITransactionRepository
+from db.repositories.interfaces import ITransactionRepository
 from finance_manager.utilities.decorators import retry_until_transaction_ready
 
 

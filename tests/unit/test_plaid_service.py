@@ -8,8 +8,8 @@ from plaid.api.plaid_api import PlaidApi
 from plaid.exceptions import ApiException
 from plaid.model.transactions_update_status import TransactionsUpdateStatus
 
-from finance_manager.db.models import Category, Transaction
-from finance_manager.db.repositories.interfaces import ITransactionRepository
+from db.models import Category, Transaction
+from db.repositories.interfaces import ITransactionRepository
 from finance_manager.services import get_plaid_service
 from finance_manager.services.interfaces.plaid_factory_interfaces import (
     IPlaidSessionFactory,

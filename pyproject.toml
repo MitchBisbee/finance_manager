@@ -1,7 +1,7 @@
 [project]
-name = "finance-manager"
+name = "finance-manager-root"
 version = "0.1.0"
-description = "Finance manager environment"
+description = "Monorepo Workspace Environment for Personal Finance Tracker"
 readme = "README.md"
 requires-python = ">=3.14"
 
@@ -11,7 +11,6 @@ dependencies = [
     "requests",
     "PySide6",
     "PySide6-Addons",
-    "typing",
     "plaid-python>=45.0.0",
     "sqlalchemy>=2.1.5",
     "psycopg[binary]>=3.3.6",
@@ -24,20 +23,19 @@ dev = [
     "ruff",        
     "pytest",     
     "pytest-cov",
+    "apache-airflow>=2.10.2",
+    "apache-airflow-providers-cncf-kubernetes>=8.0.0",
 ]
 
+[tool.uv.workspace]
+members = ["src/*"]
+
 [build-system]
-requires = ["setuptools>=69", "wheel"]
+requires = ["setuptools>=61.0.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-include-package-data = true
-
-[tool.setuptools.packages.find]
-where = ["src"]
-
-[project.scripts]
-app = "finance_manager.app.__main__:main"
+packages = []  # Forcefully tells the engine that there are no root packages to compile
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

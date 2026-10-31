@@ -2,7 +2,7 @@ import os
 from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import URL, engine_from_config, pool
-from finance_manager.db.models import BaseModel
+from src.db.models import BaseModel
 
 
 # Alembic configuration.

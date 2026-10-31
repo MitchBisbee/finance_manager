@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from contextlib import AbstractContextManager
 from uuid import UUID
 
-from finance_manager.db.models.transaction_models import Category, Transaction
+from db.models.transaction_models import Category, Transaction
 
 
 class ITransactionRepository(ABC):

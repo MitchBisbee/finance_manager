@@ -2,8 +2,8 @@ from datetime import datetime
 import uuid
 from sqlalchemy.orm import mapped_column, Mapped
 from sqlalchemy import ForeignKey
-from finance_manager.db.models.mixins import TimestampMixin, PrimaryKeyMixin
-from finance_manager.db.models.base import BaseModel
+from db.models.mixins import TimestampMixin, PrimaryKeyMixin
+from db.models.base import BaseModel
 from sqlalchemy import String
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.ext.mutable import MutableList

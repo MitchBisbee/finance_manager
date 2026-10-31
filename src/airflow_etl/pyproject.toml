@@ -1,0 +1,14 @@
+[project]
+name = "airflow_etl"
+version = "0.1.0"
+requires-python = ">=3.14"
+dependencies = [
+    "db", 
+]
+
+[tool.uv.sources]
+db = { workspace = true }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
