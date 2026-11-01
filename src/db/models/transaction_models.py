@@ -1,3 +1,5 @@
+"""Define the transaction and category ORM models."""
+
 from datetime import datetime
 import uuid
 from sqlalchemy.orm import mapped_column, Mapped

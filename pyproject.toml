@@ -11,10 +11,10 @@ dependencies = [
     "requests",
     "PySide6",
     "PySide6-Addons",
-    "plaid-python>=45.0.0",
-    "sqlalchemy>=2.1.5",
-    "psycopg[binary]>=3.3.6",
     "alembic>=1.20.0",
+    "db",
+    "finance_manager",
+    "airflow_etl",
 ]
 
 [project.optional-dependencies]
@@ -26,6 +26,11 @@ dev = [
     "apache-airflow>=2.10.2",
     "apache-airflow-providers-cncf-kubernetes>=8.0.0",
 ]
+
+[tool.uv.sources]
+db = { workspace = true }
+finance_manager = { workspace = true }
+airflow_etl = { workspace = true }
 
 [tool.uv.workspace]
 members = ["src/*"]
@@ -39,4 +44,5 @@ packages = []  # Forcefully tells the engine that there are no root packages to 
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["src"]
 addopts = "--strict-markers"

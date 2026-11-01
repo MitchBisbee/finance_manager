@@ -1,3 +1,5 @@
+"""Configure and run Alembic migrations against the real database."""
+
 import os
 from logging.config import fileConfig
 from alembic import context

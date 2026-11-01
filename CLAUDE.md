@@ -25,12 +25,12 @@ A PySide6 + Plotly desktop app that analyzes bank and credit-card CSV exports, p
 ## Pipelines
 
 - CSV app: `CSVDataCleaner` → `FinanceService` → `MainWindow`
-- Plaid import: `PlaidSandboxSessionFactory` → `PlaidService` → `TransactionRepository` → `PostgresClient`
+- Plaid ETL (`src/airflow_etl/`): `PlaidSandboxSessionFactory` → `PlaidService.extract` → `transform` → `load` → `TransactionRepository` → `PostgresClient`. `run_sync.py` runs the steps in order.
 
 ## Non-obvious rules
 
 - Cleaned frames have the columns `date, description, category, amount`. **Negative amounts are expenses and positive amounts are income.** A CSV with a `Transaction Date` column is treated as credit; any other CSV is checking.
-- Repositories `add` and `flush` but never commit. The caller owns the transaction (`with repo.transaction():`). `PlaidService` doesn't commit either.
+- Repositories `add` and `flush` but never commit. The caller owns the transaction (`with repo.transaction():`). `PlaidService.load` doesn't commit either; `extract` touches only Plaid and `transform` does no I/O.
 - `PostgresClient` is one shared instance per process, and constructing it with a different URL raises `ValueError`. Tests must reset `PostgresClient._instance`.
 - The repository's `transaction_id` parameters are internal UUIDs. Plaid's ID is stored as `bank_transaction_id`.
 - Each layer has an ABC in a sibling `interfaces/` package. Code depends on those ABCs and gets implementations from the `get_*` factory functions exported by each package.

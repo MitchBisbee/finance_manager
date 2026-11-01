@@ -14,3 +14,10 @@ build-backend = "hatchling.build"
 
 [tool.uv.sources]
 db = { workspace = true }
+
+[tool.hatch.build]
+dev-mode-dirs = [".."]
+
+[tool.hatch.build.targets.wheel]
+include = ["**/*"]
+sources = { "" = "finance_manager" }

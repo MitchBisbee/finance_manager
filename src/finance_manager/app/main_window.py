@@ -33,6 +33,11 @@ class MainWindow(QMainWindow):
     """
 
     def __init__(self, finance_manager: FinanceService):
+        """Build the main window.
+
+        Args:
+            finance_manager: Service supplying the data and plots to display.
+        """
         QMainWindow.__init__(self)
         self._finance_manager = finance_manager
         self.setWindowTitle("Finance Manager")

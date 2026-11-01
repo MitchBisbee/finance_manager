@@ -1,8 +1,26 @@
+"""Provide retry decorators for Plaid requests."""
+
 from functools import wraps
 from time import sleep
 
 
 def retry_until_transaction_ready(func):
+    """Retry a Plaid request until its transactions are no longer NOT_READY.
+
+    The wrapped function accepts two extra keyword arguments: max_attempts
+    (default 20) and delay, the seconds between attempts (default 3).
+
+    Args:
+        func: Callable returning a response with a
+            transactions_update_status field.
+
+    Returns:
+        The wrapped function.
+
+    Raises:
+        ValueError: If max_attempts is below 1 or delay is negative.
+        TimeoutError: If the status is still NOT_READY after max_attempts.
+    """
     @wraps(func)
     def _wrapper(*args, **kwargs):
         max_attempts = kwargs.pop("max_attempts", 20)

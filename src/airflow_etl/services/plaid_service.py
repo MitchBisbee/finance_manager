@@ -1,4 +1,4 @@
-"""Import Plaid transactions and map them to persistent ORM models.
+"""Extract Plaid transactions, transform them to ORM models, and load them.
 
 This module supports initial imports of added transactions. It does not
 persist synchronization cursors or process modified and removed transactions.
@@ -16,16 +16,17 @@ from plaid.exceptions import ApiException
 from plaid.model.transactions_sync_request import TransactionsSyncRequest
 
 from db.models.transaction_models import Category, Transaction
-from finance_manager.dtos.transactions import ImportedTransactionDto
-from finance_manager.services.interfaces.plaid_factory_interfaces import IPlaidSessionFactory
+from airflow_etl.dtos.transactions import ImportedTransactionDto
+from airflow_etl.services.interfaces.plaid_factory_interfaces import IPlaidSessionFactory
 from db.repositories.interfaces import ITransactionRepository
-from finance_manager.utilities.decorators import retry_until_transaction_ready
+from airflow_etl.utilities.decorators import retry_until_transaction_ready
 
 
 class PlaidService:
-    """Import added Plaid transactions through a repository.
+    """Run the extract, transform, and load steps for Plaid transactions.
 
-    Fetches all transaction pages before mapping and persisting records.
+    Callers run the steps in order, inside a repository transaction when
+    loading. Extraction fetches all transaction pages before returning.
     Pagination mutation errors restart the fetch from the initial cursor,
     subject to a bounded number of attempts.
 
@@ -177,7 +178,7 @@ class PlaidService:
                 category=transaction["category"],
             )
 
-    def _extract_orm_models(
+    def _build_orm_models(
         self,
         transaction_dtos: Iterable[ImportedTransactionDto],
     ) -> Iterator[tuple[Transaction, Category]]:
@@ -208,33 +209,72 @@ class PlaidService:
 
             yield transaction, category
 
-    def persist_transactions(self) -> None:
-        """Fetch, map, and persist added Plaid transactions.
+    def extract(self) -> list[Any]:
+        """Extract added transactions from Plaid.
 
-        Completes pagination before invoking repository writes. Each
-        transaction is passed to the repository before its associated category.
+        Returns:
+            Raw Plaid transaction records from a completed pagination sequence.
+
+        Raises:
+            ApiException: If fetching transactions fails after applicable
+                readiness or pagination retries.
+            RuntimeError: If pagination finishes without a result.
+        """
+        return self._get_added_transactions()
+
+    def transform(
+        self,
+        transactions: Iterable[Any],
+    ) -> list[tuple[Transaction, Category]]:
+        """Transform raw Plaid records into related ORM model pairs.
+
+        Builds every pair before returning, so an invalid record fails before
+        any data is loaded. This method performs no I/O.
+
+        Args:
+            transactions: Raw Plaid transaction records.
+
+        Returns:
+            A transaction and its associated category for each input record.
+
+        Raises:
+            KeyError: If a transaction is missing a required mapping field.
+        """
+        transaction_dtos = self._map_to_imported_transaction_dtos(
+            transactions
+        )
+
+        return list(self._build_orm_models(transaction_dtos))
+
+    def load(
+        self,
+        records: Iterable[tuple[Transaction, Category]],
+    ) -> None:
+        """Load ORM model pairs through the repository.
+
+        Each transaction is passed to the repository before its associated
+        category.
 
         This method does not explicitly commit or roll back database work.
         Transaction management and duplicate prevention are delegated to the
         repository and its surrounding unit of work.
 
-        Raises:
-            ApiException: If fetching transactions fails after applicable
-                readiness or pagination retries.
-            KeyError: If a transaction is missing a required mapping field.
-            RuntimeError: If pagination finishes without a result.
+        Args:
+            records: Transaction and category pairs to persist.
         """
-        transactions = self._get_added_transactions()
-        transaction_dtos = self._map_to_imported_transaction_dtos(
-            transactions
-        )
-
-        for transaction, category in self._extract_orm_models(
-            transaction_dtos
-        ):
+        for transaction, category in records:
             self._transaction_repository.create_transaction(transaction)
             self._transaction_repository.create_category(category)
 
 
 def get_plaid_service(session_factory: IPlaidSessionFactory, transaction_repository: ITransactionRepository):
+    """Return a new Plaid ETL service.
+
+    Args:
+        session_factory: Provides the Plaid client and access token.
+        transaction_repository: Persists transaction and category models.
+
+    Returns:
+        A configured PlaidService.
+    """
     return PlaidService(session_factory=session_factory, transaction_repository=transaction_repository)

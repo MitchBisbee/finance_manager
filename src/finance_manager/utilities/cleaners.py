@@ -10,6 +10,11 @@ class CSVDataCleaner:
     """Cleans and normalizes incoming CSV finance data."""
 
     def __init__(self, path: Path):
+        """Initialize the cleaner.
+
+        Args:
+            path: CSV file, or a directory of CSV files, to clean.
+        """
         self.path = Path(path)
         self._columns_map = normalization_config["columns_map"]
         self._drop_list = normalization_config["drop_list"]

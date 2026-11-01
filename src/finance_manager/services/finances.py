@@ -15,6 +15,11 @@ class FinanceService:
     """Class for interrogating financial data, and creating budgets."""
 
     def __init__(self, data_frame_list: List[dict]) -> None:
+        """Initialize the service with cleaned account data.
+
+        Args:
+            data_frame_list: {account_type: cleaned DataFrame} entries.
+        """
         self._set_data(data_frame_list)
 
     def _set_data(self, data_frame_list: List[dict]) -> None:

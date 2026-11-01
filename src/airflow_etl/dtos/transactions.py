@@ -1,3 +1,5 @@
+"""Define data transfer objects for imported transactions."""
+
 from dataclasses import dataclass
 from datetime import datetime
 

@@ -4,7 +4,7 @@ from plaid.model.products import Products
 from plaid.model.sandbox_public_token_create_request import SandboxPublicTokenCreateRequest
 from plaid.model.item_public_token_exchange_request import ItemPublicTokenExchangeRequest
 from plaid.api.plaid_api import PlaidApi
-from finance_manager.services.interfaces.plaid_factory_interfaces import IPlaidSessionFactory
+from airflow_etl.services.interfaces.plaid_factory_interfaces import IPlaidSessionFactory
 
 
 class PlaidSandboxSessionFactory(IPlaidSessionFactory):
