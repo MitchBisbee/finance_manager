@@ -11,14 +11,12 @@ import json
 from collections.abc import Iterable, Iterator
 from typing import Any
 from uuid import uuid7
-
 from plaid.exceptions import ApiException
 from plaid.model.transactions_sync_request import TransactionsSyncRequest
-
+from db.repositories.interfaces import ITransactionRepository
 from db.models.transaction_models import Category, Transaction
 from airflow_etl.dtos.transactions import ImportedTransactionDto
 from airflow_etl.services.interfaces.plaid_factory_interfaces import IPlaidSessionFactory
-from db.repositories.interfaces import ITransactionRepository
 from airflow_etl.utilities.decorators import retry_until_transaction_ready
 
 
