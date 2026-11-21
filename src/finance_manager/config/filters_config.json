@@ -1,0 +1,22 @@
+{
+    "exclude_list":[
+        "Interest Income",
+        "Interest Payment",
+        "Bills & Utilities",
+        "Mobile Phone",
+        "Credit Card Payment",
+        "Financial",
+        "Income",
+        "Utilities",
+        "Transfer",
+        "Payroll",
+        "Paycheck",
+        "Groceries",
+        "Gas",
+        "Food & Drink",
+        "Travel",
+        "Rental Car & Taxi",
+        "Veterinary",
+        "Rent"
+    ]
+}

@@ -1,18 +1,20 @@
 [project]
-name = "finance-manager"
+name = "finance-manager-root"
 version = "0.1.0"
-description = "Finance manager environment"
+description = "Monorepo Workspace Environment for Personal Finance Tracker"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.14"
 
-# Core runtime deps
 dependencies = [
     "pandas",
     "plotly",
     "requests",
     "PySide6",
     "PySide6-Addons",
-    "typing", 
+    "alembic>=1.20.0",
+    "db",
+    "finance_manager",
+    "airflow_etl",
 ]
 
 [project.optional-dependencies]
@@ -20,22 +22,27 @@ dev = [
     "black",       
     "ruff",        
     "pytest",     
-    "pytest-cov", 
+    "pytest-cov",
+    "apache-airflow>=2.10.2",
+    "apache-airflow-providers-cncf-kubernetes>=8.0.0",
 ]
 
+[tool.uv.sources]
+db = { workspace = true }
+finance_manager = { workspace = true }
+airflow_etl = { workspace = true }
+
+[tool.uv.workspace]
+members = ["src/*"]
+
 [build-system]
-requires = ["setuptools>=69", "wheel"]
+requires = ["setuptools>=61.0.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-include-package-data = true
+packages = []  # Forcefully tells the engine that there are no root packages to compile
 
-# Using src/ layout
-[tool.setuptools.packages.find]
-where = ["src"]
-# Adjust include list to match your actual package dirs under src/
-include = ["app*", "bank*", "managers*", "plotting*","processing*","config*"]
-exclude = ["tests*", "docs*", "examples*"]
-
-[project.scripts]
-app = "app.__main__:main"
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "--strict-markers"
